@@ -1,0 +1,137 @@
+* Install `use-package`
+
+  #+BEGIN_SRC emacs-lisp
+    (unless (package-installed-p 'use-package)
+      (package-refresh-contents)
+      (package-install 'use-package)
+      (eval-when-compile (require 'use-package)))
+  #+END_SRC
+
+
+* Quick open init file
+  We are going to have frequent editing of init file. Let's create a shortcut for opening and reloading init file.
+
+  #+BEGIN_SRC emacs-lisp :results output silent
+    (defun kuantum/open-org-init-file ()
+      (interactive)
+      (find-file (expand-file-name kuantum/org-init-file)))
+
+    (defun kuantum/reload-init-file ()
+      (interactive)
+      (load-file user-init-file))
+
+    (global-set-key (kbd "C-c C-l") #'kuantum/open-org-init-file)
+    (global-set-key (kbd "C-c C-r")
+                    #'kuantum/reload-init-file)
+  #+END_SRC
+
+
+* Backup
+  We move all backup files to a dedicated folder.
+  #+BEGIN_SRC emacs-lisp :results output silent
+    (use-package emacs
+      :customize
+      ((backup-directory-alist
+        '(("." . "~/.emacs.d/backup/")))
+       (backup-by-copying t)
+       (version-control t)
+       (delete-old-versions t)
+       (kept-new-versions 6)
+       (kept-old-versions 2)
+       (create-lockfiles nil))
+      )
+  #+END_SRC
+
+* Emacs-lisp editing
+
+  #+BEGIN_SRC emacs-lisp :results output silent
+    (setq-default indent-tabs-mode nil)
+
+    (defun kuantum/indent-buffer ()
+      "Indent entire buffer"
+      (interactive)
+      (save-excursion
+        (indent-region (point-min) (point-max)))
+      )
+
+    (add-hook 'emacs-lisp-mode-hook (lambda () (add-hook 'before-save-hook #'kuantum/indent-buffer)))
+
+  #+END_SRC
+
+* Custom file
+  Put all customization settings in a separate file.
+  #+BEGIN_SRC emacs-lisp :results output silent
+    (use-package cus-edit
+      :config
+      (setq custom-file "~/.emacs.d/custom.el")
+      (with-temp-buffer (write-file custom-file))
+      (load custom-file)
+      )
+  #+END_SRC
+
+* Org-mode tweaks
+
+  #+BEGIN_SRC emacs-lisp :results output silent
+    (use-package org
+      :config (progn
+                ;; Native tab in code block.
+                (setq org-src-tab-acts-natively t)
+                ;; Do not confirm execution of emacs-lisp code.
+                (defun kuantum/org-confirm-babel-evaluate (lang body)
+                  (not (string= lang "emacs-lisp")))
+                (setq org-confirm-babel-evaluate #'kuantum/org-confirm-babel-evaluate)
+                ;; Use <el to insert emacs-lisp code-block
+                (add-to-list 'org-structure-template-alist
+                             '("el" "#+BEGIN_SRC emacs-lisp :results output silent\n\n#+END_SRC"))))
+  #+END_SRC
+
+** COMMENT Auto-Complete  
+
+   #+BEGIN_SRC emacs-lisp :results output silent
+     (use-package company
+       :ensure t
+       :config 
+       (progn 
+         (add-hook 'after-init-hook #'global-company-mode)
+         )
+       )
+   #+END_SRC
+
+
+* IComplete
+  #+BEGIN_SRC emacs-lisp :results output silent
+    (use-package icomplete
+      :custom
+      (
+       (icomplete-separator (propertize " · " 'face 'shadow))
+       (icomplete-in-buffer t)
+       (icomplete-hide-common-prefix t)
+       )
+
+      :config
+      (icomplete-mode 1)
+      )
+  #+END_SRC
+
+
+* Look and Feel
+** Minimal UI Element
+   #+BEGIN_SRC emacs-lisp
+     (tool-bar-mode -1)
+     (scroll-bar-mode -1)
+   #+END_SRC
+
+
+
+** Font size adjustment
+   #+BEGIN_SRC emacs-lisp
+     (use-package face-remap
+       :bind (("s-+" . text-scale-increase)
+              ("s--" . text-scale-decrease)
+              )
+       :config
+       (set-face-attribute 'default nil :height 160)
+       )
+   #+END_SRC
+
+
