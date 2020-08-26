@@ -8,6 +8,7 @@
 
 (require 'org)
 
-(setq kuantum/org-init-file "~/.emacs.d/emacs-init.org")
-
-(org-babel-load-file (expand-file-name kuantum/org-init-file))
+(dolist
+    (org-file (directory-files "~/.emacs.d" t "org"))
+  (org-babel-load-file org-file)
+  )
