@@ -97,19 +97,26 @@
    #+END_SRC
 
 
-* IComplete
+* icomplete and icomplete-vertical
   #+BEGIN_SRC emacs-lisp :results output silent
-    (use-package icomplete
+    (use-package icomplete-vertical
+      :ensure t
+      :demand t
       :custom
-      (
-       (icomplete-separator (propertize " · " 'face 'shadow))
-       (icomplete-in-buffer t)
-       (icomplete-hide-common-prefix t)
-       )
-
+      (completion-styles '(partial-completion substring))
+      (completion-category-overrides '((file (styles basic substring))))
+      (read-file-name-completion-ignore-case t)
+      (read-buffer-completion-ignore-case t)
+      (completion-ignore-case t)
       :config
-      (icomplete-mode 1)
-      )
+      (icomplete-mode)
+      (icomplete-vertical-mode)
+      :bind (:map icomplete-minibuffer-map
+                  ("<down>" . icomplete-forward-completions)
+                  ("C-n" . icomplete-forward-completions)
+                  ("<up>" . icomplete-backward-completions)
+                  ("C-p" . icomplete-backward-completions)
+                  ("C-v" . icomplete-vertical-toggle)))
   #+END_SRC
 
 
@@ -118,6 +125,7 @@
    #+BEGIN_SRC emacs-lisp
      (tool-bar-mode -1)
      (scroll-bar-mode -1)
+     (menu-bar-mode -1)
    #+END_SRC
 
 ** Font size adjustment
