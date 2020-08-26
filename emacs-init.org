@@ -12,6 +12,8 @@
   We are going to have frequent editing of init file. Let's create a shortcut for opening and reloading init file.
 
   #+BEGIN_SRC emacs-lisp :results output silent
+    (setq kuantum/org-init-file "~/.emacs.d/emacs-init.org")
+
     (defun kuantum/open-org-init-file ()
       (interactive)
       (find-file (expand-file-name kuantum/org-init-file)))
